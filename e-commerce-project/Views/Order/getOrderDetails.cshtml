@@ -1,0 +1,28 @@
+﻿@model List<OrderProduct>;
+@{
+    Layout = "~/Views/Shared/_Admin.cshtml";
+}
+
+    <table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">name</th>
+      <th scope="col">price</th>
+      <th scope="col">quantity</th>
+      <th scope="col">image</th>
+    </tr>
+  </thead>
+  <tbody>
+      @{
+          foreach (OrderProduct product in @Model)
+          {
+            <tr>
+              <td>@product.Product.Name</td>
+              <td>@product.Product.Price</td>
+              <td>@product.quantity</td>
+              <td> <img  style="width:100px" src="/productImages/@product.Product.img"> </td>
+            </tr>          
+          }
+      }
+  </tbody>
+</table>

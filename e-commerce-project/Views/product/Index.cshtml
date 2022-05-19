@@ -1,0 +1,44 @@
+﻿@model List<Product>
+@{
+ViewData["Title"] = "Index";
+Layout = "_Admin";
+}
+<div style="padding:30px 0;text-align:right;">
+    <a asp-action="New" asp-controller="product" style="background-color:#1f2937;text-decoration:none;color:white;padding:15px 30px">Add</a>
+</div>
+<table class="table table-hover">
+<thead>
+<tr>
+<th scope="col">Name</th>
+<th scope="col">Price</th>
+<th scope="col">Description</th>
+<th scope="col">IMage</th>
+<th scope="col">CategoryName</th>
+</tr>
+</thead>
+<tbody>
+@{
+foreach (Product product in @Model)
+{
+<tr>
+<td class="col-2" >@product.Name</td>
+<td class="col-2">@product.Price</td>
+<td class="col-4"><div style="width:170px ;word-wrap: break-word;white-space: normal;">@product.Description</div></td>
+<td class="col-2"> <div><img style="width:100px" src="/productImages/@product.img"></div> </td>
+
+<td class="col-2">@product.Category.Name</td>
+<td>
+<a asp-controller="Product" asp-action="Edit" asp-route-id="@product.Id" >
+<i class="fa-solid fa-pen-to-square"></i>
+</a>
+</td>
+<td>
+<a asp-controller="Product" asp-action="delete" asp-route-id="@product.Id" >
+<i class="fa-solid fa-trash-can"></i>
+</a>
+</td>
+</tr>
+}
+}
+</tbody>
+</table>

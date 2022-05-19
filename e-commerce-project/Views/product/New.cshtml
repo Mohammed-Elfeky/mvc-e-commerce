@@ -1,0 +1,88 @@
+﻿
+@{
+    ViewData["Title"] = "New";
+    Layout = "_Admin";
+}
+@{
+var AllCategories =new SelectList( ViewBag.AllCategories,"Id","Name");
+}
+
+@using e_commerce_project.viewModels.Products;
+@model AddProductVM;
+
+
+    <div class="page-wrapper  p-t-130 p-b-100 font-poppins">
+        <div class="wrapper wrapper--w680">
+            <div class="card card-4">
+                <div class="card-body">
+                    <h2 class="title">Product</h2>
+                    <form  asp-controller="Product"  asp-action="SaveNew" method="post" enctype="multipart/form-data" >
+                    <div class="input-group">
+                         <label class="label" asp-for="Name"></label>
+                         <input class="input--style-4" asp-for="Name">
+                         <span  asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="label" asp-for="Description"></label>
+                        <input class="input--style-4" asp-for="Description" >
+                        <span  asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div>
+                        <label class="label" asp-for="img"></label>
+                        <input asp-for="img" />
+                        <span  asp-validation-for="img" class="text-danger"></span>
+                    </div>
+                    <div class="input-group">
+                         <label class="label" asp-for="Price"></label>
+                         <input class="input--style-4" asp-for="Price">
+                         <span  asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+                  <div class="form-group">
+                      <label asp-for="CategoryId" class="form-label">CategoryName</label>
+                      <select class="custom-select" asp-for="CategoryId" asp-items="AllCategories">
+                      </select>
+                    </div>
+
+                    <div class="p-t-15">
+                            <button class="btn btn--radius-2 btn--blue" type="submit">Submit</button>
+                    </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+@section MyStyles
+{
+    <!-- Icons font CSS-->
+    <link href="/addAndEditTemplate/vendor/mdi-font/css/material-design-iconic-font.min.css" rel="stylesheet" media="all">
+    <link href="/addAndEditTemplate/vendor/font-awesome-4.7/css/font-awesome.min.css" rel="stylesheet" media="all">
+    <!-- Font special for pages-->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+    <!-- Vendor CSS-->
+    <link href="/addAndEditTemplate/vendor/select2/select2.min.css" rel="stylesheet" media="all">
+    <link href="/addAndEditTemplate/vendor/datepicker/daterangepicker.css" rel="stylesheet" media="all">
+
+    <!-- Main CSS-->
+    <link href="/addAndEditTemplate/css/main.css" rel="stylesheet" media="all">
+}
+@section MyScripts
+{
+    <!-- Jquery JS-->
+    <script src="/addAndEditTemplate/vendor/jquery/jquery.min.js"></script>
+    <!-- Vendor JS-->
+    <script src="/addAndEditTemplate/vendor/select2/select2.min.js"></script>
+    <script src="/addAndEditTemplate/vendor/datepicker/moment.min.js"></script>
+    <script src="/addAndEditTemplate/vendor/datepicker/daterangepicker.js"></script>
+
+    <!-- Main JS-->
+    <script src="/addAndEditTemplate/js/global.js"></script>
+   
+    <!-- validation-->
+    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+}

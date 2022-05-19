@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Sweet Alert -->
+    <link type="text/css" href="/AdminLayoutTemplate/sweetalert2.min.css" rel="stylesheet">
+
+    <!-- Notyf -->
+    <link type="text/css" href="/AdminLayoutTemplate/notyf.min.css" rel="stylesheet">
+
+    <!-- Volt CSS -->
+    <link type="text/css" href="/AdminLayoutTemplate/volt.css" rel="stylesheet">
+
+    <link type="text/css" href="/AdminLayoutTemplate/myStyle.css" rel="stylesheet">
+    <link type="text/css" href="/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    @RenderSection("MyStyles",false)
+</head>
+<body>
+    <div>
+        @Html.Partial("_aside")
+        <main class="content">
+                @RenderBody()
+         </main>
+    </div>
+        <script src="/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        @RenderSection("MyScripts",false)
+</body>
+</html>

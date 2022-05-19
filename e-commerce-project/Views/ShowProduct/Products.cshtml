@@ -1,0 +1,102 @@
+﻿
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+@model List<Product>;
+            <div class="col-md-12">
+                <div class="row pb-3">
+                    <div class="col-12 pb-1 d-flex ">
+                          <div style="width:500px" class="form-group shadow p-3 mb-5 bg-white rounded">
+                            <label for="formControlRange">Filter by price: </label>
+                            <span class="show-price"></span>
+                            <input onchange="whenChange(this)" min="50" max="700" type="range" class="form-control-range" id="formControlRange">
+                          </div>
+                    </div>
+
+                    <div class="products-container row">
+
+                          @{
+                              foreach ( Product product in @Model )
+                              {
+                                        <div class=" col-lg-4 col-md-6 col-sm-12 pb-1">
+                                        @*card*@
+                                            <div class="card product-item border-0 mb-4">
+                                                <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                                                    <img class="img-fluid w-100" src="/productImages/@product.img" alt="">
+                                                </div>
+                                                <div class="card-body border-left border-right text-center p-0 pt-4 pb-3 w-100">
+                                                    <h6 class="text-truncate mb-3">@product.Name</h6>
+                                                    <div class="d-flex justify-content-center">
+                                                        <h6>$ @product.Price</h6>
+                                                    </div>
+                                                </div>
+                                                <div class="card-footer d-flex justify-content-around bg-light border w-100">
+                                                    <a href="/ShowProduct/getProductById/@product.Id" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
+                                                    <a  style="cursor:pointer" class="btn btn-sm text-dark p-0" onclick="whenAdd(@product.Id)"><i class="fas fa-shopping-cart text-primary mr-1"></i>Add To Cart</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                              }
+                           }
+                    </div>
+                   
+                 
+                </div>
+            </div>
+
+@section MyScript{
+    <script>
+        function whenAdd(productId){
+                $.ajax({
+                  url:"/Cart/Add/"+productId,
+                  success: function(res){
+                      updateCartCount(res.count)
+                    },
+                  error: function (request, status, error) {
+                    //if not signed in user redirect him to login
+                    if(request.status==401){
+                       window.location.href = "/Account/Login";
+                    }
+                  }
+                });
+        }
+       function updateCartCount(count){
+            localStorage.setItem("count",count)
+            document.dispatchEvent(new CustomEvent("countChange"))
+        }
+       function whenChange({value}){
+           $(".show-price").text(value)
+            $.ajax({
+                  url:`/ShowProduct/filterByPrice?price=${value}`,
+                  success: function(res){
+                       $(".products-container").html('')
+                      res.forEach(({img,name,price,id})=>{
+                          $(".products-container").append(`
+                           <div class=" col-lg-4 col-md-6 col-sm-12 pb-1">
+                                            <div class="card product-item border-0 mb-4">
+                                                <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                                                    <img class="img-fluid w-100" src="/productImages/${img}" alt="">
+                                                </div>
+                                                <div class="card-body border-left border-right text-center p-0 pt-4 pb-3 w-100">
+                                                    <h6 class="text-truncate mb-3">${name}</h6>
+                                                    <div class="d-flex justify-content-center">
+                                                        <h6>$ ${price}</h6>
+                                                    </div>
+                                                </div>
+                                                <div class="card-footer d-flex justify-content-around bg-light border w-100">
+                                                    <a href="/ShowProduct/getProductById/${id}" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
+                                                    <a  style="cursor:pointer" class="btn btn-sm text-dark p-0" onclick="whenAdd(${id})"><i class="fas fa-shopping-cart text-primary mr-1"></i>Add To Cart</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                          `
+                          )
+                      })
+                      
+                  },
+                  error: function (request, status, error) {}
+             });
+       }
+    </script>
+}
+				

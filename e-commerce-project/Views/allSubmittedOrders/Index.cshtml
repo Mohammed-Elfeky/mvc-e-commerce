@@ -1,0 +1,161 @@
+﻿@model IEnumerable<e_commerce_project.Models.Order>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.address)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.orderLocation)
+            </th>
+            <th style="text-align:center">
+                where is my order
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalPrice)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.address)
+            </td>
+
+            <td>
+                @Html.DisplayFor(modelItem => item.date)
+            </td>
+                @{
+                    if(@item.aLat!=null && @item.aLong!=null && @item.oLat!=null && @item.oLong != null)
+                    {
+                           <td style="text-align:center">
+                                @item.orderLocation
+                           </td>
+                    }else{
+                           <td class="text-primary" >the order didnt move</td>
+                    }
+                }
+                @{
+                    if(@item.aLat!=null && @item.aLong!=null && @item.oLat!=null && @item.oLong != null)
+                    {
+                           <td >
+                                <i onclick="whenclick(@item.aLat,@item.aLong,@item.oLat,@item.oLong)" style="cursor:pointer" data-toggle="modal" data-target="#exampleModal"  class="fa-solid fa-map-location-dot"></i>
+                           </td>
+                    }else{
+                           <td class="text-primary" >the order didnt move</td>
+                    }
+                }
+            <td>$ @item.TotalPrice</td>
+            <td>
+                <a asp-controller="allSubmittedOrders"  asp-action="getOrderDetails" asp-route-id="@item.Id">
+                     <i class="fa-solid fa-circle-info"></i>
+                </a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">show order location</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+@section MyScript{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
+    <script src="https://www.mapquestapi.com/sdk/leaflet/v2.2/mq-map.js?key=py1Cyrs9VDaGTYQc4eBraaoJCQYN7nel"></script>
+    <script src="https://www.mapquestapi.com/sdk/leaflet/v2.2/mq-routing.js?key=py1Cyrs9VDaGTYQc4eBraaoJCQYN7nel"></script>
+        <script>
+            function whenclick(alat,along,olat,olong){
+                    $(".modal-body").html("<div id='map' style='width:100%;height:450px;'></div>")
+                    setTimeout(()=>{
+                       drawMap(alat,along,olat,olong)
+                    },300)
+            }
+            function drawMap(alat,along,olat,olong){
+                
+                 //create map 
+                 let map = L.map('map', {
+                    layers: MQ.mapLayer(),
+                    center: [Number(alat),Number(along)],
+                    zoom: 12
+                 });
+
+                 //create route 
+                 var dir = MQ.routing.directions();
+
+                 dir.on('success', function(data) {
+                     if(data.route.distance){
+                        $(".modal-body").append(`<div class="text-primary" id='map' style='font-size:30px;padding-top:15px;text-align:center'>
+                            the order is ${Math.floor(data.route.distance*1.62)} kilometers away from your address 
+                        </div>`)
+                     }
+                 });
+
+                 //configure route and start point and end point
+                 dir.route({
+                     locations: [
+                         `${alat}, ${along}`,
+                         `${olat}, ${olong}`
+                     ]
+                 });
+
+                 CustomRouteLayer = MQ.Routing.RouteLayer.extend({
+
+                     createStartMarker: (location) => {
+
+                          custom_icon = L.icon({
+                              iconUrl: '/icons/house-solid.svg',
+                              iconSize: [25, 25]
+                          });
+
+                         return L.marker(location.latLng,{icon:custom_icon}).addTo(map);;
+                     },
+                     createEndMarker: (location) => {
+                       custom_icon = L.icon({
+                              iconUrl: '/icons/truck-solid.svg',
+                              iconSize: [25, 25]
+                          });
+
+                         return L.marker(location.latLng,{icon:custom_icon}).addTo(map);;
+                     }
+                 });
+
+                 //add dir to map
+                 map.addLayer(new CustomRouteLayer({
+                    directions: dir,
+                    fitBounds: true
+                 }));
+            }
+        </script>
+}
+@section MyStyles{
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css" />
+    <style>
+        th,td{
+            text-align:center !important;
+        }
+    </style>
+}

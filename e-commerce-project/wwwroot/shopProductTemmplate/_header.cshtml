@@ -1,0 +1,195 @@
+﻿    <!-- Topbar Start -->
+    <div class="container-fluid">
+        <div class="row bg-secondary py-2 px-xl-5">
+            <div class="col-lg-6 d-none d-lg-block">
+                <div class="d-inline-flex align-items-center">
+                    <a class="text-dark" href="">FAQs</a>
+                    <span class="text-muted px-2">|</span>
+                    <a class="text-dark" href="">Help</a>
+                    <span class="text-muted px-2">|</span>
+                    <a class="text-dark" href="">Support</a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center text-lg-right">
+                <div class="d-inline-flex align-items-center">
+                    <a class="text-dark px-2" href="">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a class="text-dark px-2" href="">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a class="text-dark px-2" href="">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a class="text-dark px-2" href="">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a class="text-dark pl-2" href="">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="row align-items-center py-3 px-xl-5">
+            <div class="col-lg-3 d-none d-lg-block">
+                <a href="" class="text-decoration-none">
+                    <h1 class="m-0 display-5 font-weight-semi-bold"><span class="text-primary font-weight-bold border px-3 mr-1">E</span>Shopper</h1>
+                </a>
+            </div>
+            <div class="col-lg-6 col-6 text-left">
+                <form action="">
+                    <div class="input-group" id="search">
+                        <input oninput="whenInput(event)" type="text" class="form-control" placeholder="Search for products">
+                        <div class="input-group-append">
+                            <span class="input-group-text bg-transparent text-primary">
+                                <i class="fa fa-search"></i>
+                            </span>
+                        </div>
+                        <div class="search-result"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-lg-3 col-6 text-right">
+                @{
+                     if(User.Identity.IsAuthenticated == true){
+                        <a href="" class="btn border">
+                            <i class="fas fa-user text-primary"></i>
+                            @User.Identity.Name
+                    </a>
+                }
+            }
+            <a href="/Cart/ShowOrder" class="btn border">
+                <i class="fas fa-shopping-cart text-primary"></i>
+                <span id="cartIcon" class="badge">0</span>
+            </a>
+        </div>
+    </div>
+</div>
+<!-- Topbar End -->
+
+
+<!-- Navbar Start -->
+<div class="container-fluid">
+    <div class="row border-top px-xl-5">
+        <div class="col-lg-12">
+            <nav class="navbar navbar-expand-lg bg-light navbar-light py-3 py-lg-0 px-0">
+                <a href="" class="text-decoration-none d-block d-lg-none">
+                    <h1 class="m-0 display-5 font-weight-semi-bold"><span class="text-primary font-weight-bold border px-3 mr-1">E</span>Shopper</h1>
+                </a>
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+                    <div class="navbar-nav mr-auto py-0">
+                        <a href="index.html" class="nav-item nav-link">Home</a>
+                        <a href="/ShowProduct/Products" class="nav-item nav-link active">Shop</a>
+                        @{
+                            if (User.Identity.IsAuthenticated == true)
+                            {
+                                <a href="/allSubmittedOrders/Index/" class="nav-item nav-link">My Orders</a>
+                            }
+                        }
+                        </div>
+                        <div class="navbar-nav ml-auto py-0">
+                        @{
+                            if(User.Identity.IsAuthenticated == true){
+                                <a onclick="whenSignOut()" href="/Account/signout" class="nav-item nav-link">sign out</a>
+                            }else
+                            {
+                                <a href="/Account/Login" class="nav-item nav-link">Login</a>
+                                <a href="/Account/signUp" class="nav-item nav-link">Register</a>
+                            }
+                        }
+                        @{
+                              if (User.Identity.IsAuthenticated == true)
+                                    {
+                                        if (User.IsInRole("Admin")==true || User.IsInRole("Editor")==true)
+                                        {
+                                            <a href="/product/Index" class="nav-item nav-link">admin</a>
+                                        }
+                                    }
+                        }
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <!-- Navbar End -->
+
+    <script>
+        readFromStorageAndShow();
+
+        document.addEventListener("countChange",()=>{
+            readFromStorageAndShow()
+        })
+
+        function readFromStorageAndShow(){
+            if(localStorage.getItem("count")){
+                document.querySelector("#cartIcon").innerHTML=localStorage.getItem("count");
+                return;
+            }
+            document.querySelector("#cartIcon").innerHTML="";
+        }
+        function whenSignOut(){
+            localStorage.removeItem("count")
+        }
+
+       function whenInput({target:{value}}){
+            $.ajax({
+                  url:`/ShowProduct/search?name=${value}`,
+                  success: function(res){
+                      drawData(res)
+                    },
+                    error:function(request, status, error){
+                        console.log("sasds")
+                    }
+          });
+       }
+
+       function drawData(data){
+           $(".search-result").html("")
+           data.forEach(({img,name,id})=>{
+               $(".search-result").append(`
+                     <a href="/ShowProduct/getProductById/${id}">
+                        <div class="product-item" style="display:flex;">
+                            <img width="50px" src="/productImages/${img}" alt="">
+                            <div>${name}</div>
+                        </div>
+                     </a>
+               `)
+           })
+       }
+    </script>
+
+
+
+        <style>
+            #search{
+                position:relative;
+            }
+            .search-result{
+                position: absolute;
+                width: 100%;
+                top: 100%;
+                left: 0;
+                z-index: 10;
+                max-height: 408px;
+                overflow: auto;
+                background-color:white;
+                box-shadow:0px 3px 8px -2px rgba(0,0,0,0.63);
+            }
+
+           .product-item{
+                display: flex;
+                padding: 13px;
+                align-items: center;
+                border-bottom: 1px solid #d1d0d063;
+            }
+            .product-item img{
+                margin-right: 11px;
+            }
+            .search-result a{
+                text-decoration:none;
+            }
+        </style>

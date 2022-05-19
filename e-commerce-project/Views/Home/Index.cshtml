@@ -1,0 +1,76 @@
+﻿
+@{
+    Layout= "_Layout";
+}
+
+<div class="owl-carousel owl-theme">
+    <a asp-action="getProductsBYcategoryId" asp-controller="ShowProduct" asp-route-id=1>
+        <div style="background-image:url(/categoriesImages/CHAIR.webp)" class="item"></div>
+    </a>
+    <a asp-action="getProductsBYcategoryId" asp-controller="ShowProduct" asp-route-id=2>
+        <div style="background-image:url(/categoriesImages/DESK.webp);" class="item"></div>
+    </a>
+    <a asp-action="getProductsBYcategoryId" asp-controller="ShowProduct" asp-route-id=4>
+         <div style="background-image:url(/categoriesImages/LIGHTING.webp);" class="item"></div>
+    </a>
+    <a asp-action="getProductsBYcategoryId" asp-controller="ShowProduct" asp-route-id=3>
+       <div style="background-image:url(/categoriesImages/TABLE.webp);" class="item"></div>
+    </a>
+</div>
+
+
+
+
+
+
+
+
+@section MyScript{
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.js" integrity="sha512-gY25nC63ddE0LcLPhxUJGFxa2GoIyA5FLym4UJqHDEMHjp8RET6Zn/SHo1sltt3WuVtqfyxECP38/daUc/WVEA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+$(document).ready(function(){
+    $(".owl-carousel").owlCarousel();
+});
+$('.owl-carousel').owlCarousel({
+    loop:true,
+    margin:10,
+    nav:true,
+    autoplay:true,
+    autoplayHoverPause:true,
+    slideTransition: 'linear',
+    autoplaySpeed: 6000,
+    smartSpeed: 6000,
+    dots:false,
+    responsive:{
+        0:{
+            items:1
+        },
+        600:{
+            items:3
+        },
+        1000:{
+            items:4
+        }
+    }
+})
+fetch("http://localhost:3000").then(data=>data.json()).
+then(data=>{
+    console.log(data)
+})
+</script>
+}
+@section MyStyles{
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.css" integrity="sha512-UTNP5BXLIptsaj5WdKFrkFov94lDx+eBvbKyoe1YAfjeRPC+gT5kyZ10kOHCfNZqEui1sxmqvodNUx3KbuYI/A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+    .owl-nav{
+        display:none;
+    }
+    .item{
+        height:500px;
+        background-image:url(https://source.unsplash.com/random?1=2);
+        background-position:center;
+        background-size:cover;
+        background-repeat:no-repeat;
+    }
+</style>
+}

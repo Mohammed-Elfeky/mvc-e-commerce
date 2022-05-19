@@ -1,0 +1,49 @@
+﻿@model e_commerce_project.viewModels.editor.AddEditorVM
+@{
+    Layout = "/Views/Shared/_Admin.cshtml";
+}
+
+
+<div class="d-lg-flex half shadow-lg ">
+      <div class="container">
+        <div class="row align-items-center justify-content-center">
+          <div class="col-md-7">
+            <h3>Login to <strong>Furniture Home</strong></h3>
+                <form asp-action="SaveAddEditor">
+                    <div class="form-group">
+                        <label asp-for="UserName" class="control-label"></label>
+                        <input asp-for="UserName" class="form-control" />
+                        <span asp-validation-for="UserName" class="text-danger"></span>
+                        <div  asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Password" class="control-label"></label>
+                        <input asp-for="Password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="ConfirmPassword" class="control-label"></label>
+                        <input asp-for="ConfirmPassword" class="form-control" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <input style="background-color:#212529;color:white" type="submit" value="Create" class="btn btn-primary" />
+                    </div>
+                </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+  </div>
+
+@section MyStyles{
+    @Html.Partial("/wwwroot/signInAndSignUpTemplate/_styles.cshtml");
+}
+
+
+@section MyScripts{
+    @Html.Partial("~/Views/Shared/_ValidationScriptsPartial.cshtml");
+}
+

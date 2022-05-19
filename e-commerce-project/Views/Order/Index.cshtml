@@ -1,0 +1,282 @@
+﻿@model IEnumerable<e_commerce_project.Models.Order>
+
+@{
+    Layout = "~/Views/Shared/_Admin.cshtml";
+}
+
+
+<table style="margin-top:50px" class="table">
+    <thead>
+        <tr>
+
+            <th>
+                @Html.DisplayNameFor(model => model.address)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalPrice)
+                <i style="cursor:pointer;margin-left:10px" onclick="sortByPrice()" class="fa-solid fa-sort"></i>
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.date)
+                <i style="cursor:pointer;margin-left:10px" onclick="sortByDate()" class="fa-solid fa-sort"></i>
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.User.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.orderLocation)
+            </th>
+            <th>
+                update order location
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+
+            <td>
+                @Html.DisplayFor(modelItem => item.address)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalPrice)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.User.UserName)
+            </td>
+            @{
+                   if(@item.oLat!=null && @item.oLong != null){
+                      <td>@Html.DisplayFor(modelItem => item.orderLocation) </td>
+                   }else{
+                       <td>the order location hasn't been assigned</td>
+                   } 
+            }
+            <td style="text-align:center">
+                    <i onclick="whenClick(@item.Id)" style="cursor:pointer" data-toggle="modal" data-target="#exampleModal" class="fas fa-edit"></i>
+            </td>
+            <td>
+                <a asp-action="getOrderDetails" asp-controller="Order" asp-route-id="@item.Id">
+                    <i class="fa-solid fa-circle-info"></i>
+                </a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+<div class="charts-container">
+    <div>
+      <canvas id="count"></canvas>
+    </div>
+    <div>
+      <canvas id="totalPrice"></canvas>
+    </div>
+</div>
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">update order location</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="auto-search-wrapper">
+           <input type="text" id="basic" placeholder="Enter city or state name">
+        </div>
+        <button onclick="whenSubmit()" class="btn btn-success">submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section MyScripts{
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let address;
+        let orderId;
+        let val="asc";
+
+
+        draw("count")
+        draw("totalPrice")
+        createAutoCompleteObject()
+        storeAutoCompleteDataInLocalStorage()
+        function whenClick(id){orderId=id}
+        function createAutoCompleteObject(){
+          new Autocomplete("basic", {
+              onSearch: ({ currentValue }) => {
+                  return new Promise((resolve) => {
+                      let data=JSON.parse(localStorage.getItem("autoComplete"))
+                       s=data.filter(ele=>ele.name.toLowerCase().includes(currentValue.toLowerCase()))
+                       resolve(s)
+                  });
+              },
+              onResults: ({ matches }) =>
+                  matches.map((el) => `<li>${el.name}</li>`).join(""),
+              onSubmit:({object:{lat,longg,name}})=>{
+                 address={lat,longg,name}
+                 console.log(address)
+              }
+          });
+        }
+        function storeAutoCompleteDataInLocalStorage(){
+            if(!localStorage.getItem("autoComplete")){
+                fetch("https://states--api.herokuapp.com/").
+                then(res=>res.json()).
+                then(data=>{
+                    localStorage.setItem("autoComplete",JSON.stringify(data))
+                })
+            }
+        }
+        function whenSubmit(){
+          $.ajax({
+                  url:`/Order/editAddress/${orderId}`,
+                  type: "POST",
+                  contentType: "application/json",
+                  data: JSON.stringify(address),
+                  success: function(res){
+                      window.location.replace("/order/Index");
+                  }
+          });
+        }
+        function sortByPrice(){
+            $.ajax({
+                      url:`/Order/orderByTotal?type=${val}`,
+                      success: function(res){
+                          drawTable(res)
+                      }
+            });
+            val= val=="asc" ? "desc" : "asc"
+        }
+        function sortByDate(){
+            $.ajax({
+                      url:`/Order/orderByDate?type=${val}`,
+                      success: function(res){
+                          drawTable(res)
+                      }
+            });
+            val= val=="asc" ? "desc" : "asc"
+        }
+        function drawTable(res){
+            $("tbody").html("");
+            res.forEach(
+                ({id,address,totalPrice,date,user:{userName},oLat,oLong,orderLocation})=>{
+                    let strDate=new Date(date)+""
+                    date=strDate.substring(0,strDate.indexOf("G"))
+                    
+                    $("tbody").append(`
+                   <tr>
+                        <td>
+                            ${address}
+                        </td>
+                        <td>
+                            ${totalPrice}
+                        </td>
+                        <td>
+                            ${date}
+                        </td>
+                        <td>
+                            ${userName}
+                        </td>
+                        <td>
+                            ${(oLat&&oLong) ? orderLocation:"the order location hasn't been assigned"}
+                        </td>
+                        <td style="text-align:center">
+                            <i onclick="whenClick(${id})" style="cursor:pointer" data-toggle="modal" data-target="#exampleModal" class="fas fa-edit"></i>
+                        </td>
+                        <td>
+                            <a href="/Order/getOrderDetails/${id}" >
+                                <i class="fa-solid fa-circle-info"></i>
+                             </a>
+                        </td>
+                    </tr>
+
+                    `);
+                }
+            )
+        }
+        function drawChart(labels,arr,type){
+                const data = {
+                    labels: labels,
+                    datasets: [{
+                      label: type=="count" ? '# sold pieces':'total price of each piece',
+                      data: arr,
+                      backgroundColor: [
+                          'rgba(255, 99, 132, 0.5)',
+                          'rgba(255, 159, 64, 0.5)',
+                          'rgba(255, 205, 86, 0.5)',
+                          'rgba(75, 192, 192, 0.5)',
+                          'rgba(54, 162, 235, 0.5)',
+                          'rgba(153, 102, 255, 0.5)',
+                          'rgba(201, 203, 207, 0.5)',
+                          'rgba(255, 99, 132, 0.5)',
+                          'rgba(255, 159, 64, 0.5)',
+                          'rgba(255, 205, 86, 0.5)',
+                          'rgba(75, 192, 192, 0.5)',
+                          'rgba(54, 162, 235, 0.5)',
+                          'rgba(153, 102, 255, 0.5)',
+                          'rgba(201, 203, 207, 0.5)'
+                      ]
+                    }]
+                };
+                const config = {
+                  type: 'bar',
+                  data: data,
+                  options: {
+                    scales: {
+                      x: {
+                        ticks: {
+                          maxRotation: 90,
+                          minRotation: 90
+                        }
+                      }
+                    }
+                  }
+                }
+
+                const myChart = new Chart(
+                                document.getElementById(type),
+                                config
+                            );
+        }
+        function transformResToDataAndLabels(res){
+            return{
+                labels:res.map(({productName})=>productName),
+                data:res.map(({count})=>count)
+            }
+        }
+        function draw(type){
+            $.ajax({
+                    url: type=="count" ? `/ShowProduct/getProductCount/` :`/ShowProduct/getProductTotalPrice/` ,
+                    success: function(res){
+                          const {labels,data} =transformResToDataAndLabels(res)
+                          drawChart(labels,data,type);
+                    }
+            });
+        }
+    </script>
+}
+
+@section MyStyles{
+<!-- css -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tomik23/autocomplete@1.8.4/dist/css/autocomplete.min.css"/>
+<!-- js -->
+<script src="https://cdn.jsdelivr.net/gh/tomik23/autocomplete@1.8.4/dist/js/autocomplete.min.js"></script>
+<style>
+    td,th{
+        text-align:center;
+    }
+    .modal-body{
+        padding:10px;
+    }
+    .modal-body button{
+        margin-top:20px;
+    }
+</style>
+}
